@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sandbox Python — Exercices</title>
+<style>
+  :root {
+    --bg: #10131a;
+    --panel: #161b25;
+    --panel-alt: #1b2130;
+    --border: #262d3d;
+    --text: #dde2ea;
+    --text-dim: #8891a3;
+    --accent: #e8ac4c;
+    --accent-soft: #e8ac4c22;
+    --mint: #5fd0b8;
+    --mint-soft: #5fd0b822;
+    --danger: #e2726a;
+    --serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+  }
+  .app {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: 100vh;
+  }
+  /* Sidebar */
+  .sidebar {
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    padding: 24px 16px;
+  }
+  .brand {
+    font-family: var(--serif);
+    font-size: 19px;
+    color: var(--text);
+    margin: 0 0 4px 4px;
+  }
+  .brand-sub {
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin: 0 0 24px 4px;
+  }
+  .ex-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 11px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 4px;
+    border: 1px solid transparent;
+  }
+  .ex-item:hover { background: var(--panel-alt); }
+  .ex-item.active {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+  }
+  .ex-num {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    width: 16px;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+  .ex-item.active .ex-num { color: var(--accent); }
+  .ex-info { flex: 1; min-width: 0; }
+  .ex-title {
+    font-size: 13.5px;
+    line-height: 1.35;
+    color: var(--text);
+  }
+  .ex-diff {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 3px;
+  }
+  .ex-done {
+    font-size: 11px;
+    color: var(--mint);
+    margin-top: 3px;
+  }
+
+  /* Main */
+  .main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+  }
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { display: flex; overflow-x: auto; gap: 4px; padding: 12px; }
+    .brand, .brand-sub { display: none; }
+    .ex-item { min-width: 150px; }
+    .main { grid-template-columns: 1fr; }
+  }
+
+  .instructions {
+    padding: 32px 36px;
+    overflow-y: auto;
+    border-right: 1px solid var(--border);
+  }
+  .instr-diff {
+    display: inline-block;
+    font-size: 11.5px;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 3px 9px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  .instr-title {
+    font-family: var(--serif);
+    font-size: 26px;
+    margin: 0 0 18px 0;
+    line-height: 1.25;
+  }
+  .instr-body p, .instr-body li {
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: var(--text);
+  }
+  .instr-body p { margin: 0 0 14px 0; }
+  .instr-body strong { color: var(--accent); font-weight: 600; }
+  .instr-section-label {
+    font-size: 13px;
+    color: var(--mint);
+    margin: 22px 0 10px 0;
+    font-weight: 600;
+  }
+  .instr-body ul { margin: 0 0 14px 0; padding-left: 20px; }
+  .instr-body li { margin-bottom: 6px; }
+
+  .hints { margin-top: 26px; border-top: 1px solid var(--border); padding-top: 20px; }
+  .hint-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    margin-bottom: 8px;
+    font-family: var(--sans);
+  }
+  .hint-btn:hover { border-color: var(--accent); }
+  .hint-text {
+    font-size: 13.5px;
+    color: var(--text-dim);
+    padding: 10px 14px 16px 14px;
+    line-height: 1.55;
+  }
+
+  .solution-block { margin-top: 10px; }
+  .solution-toggle {
+    background: transparent;
+    border: 1px dashed var(--border);
+    color: var(--danger);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    font-family: var(--sans);
+  }
+  .solution-toggle:hover { border-color: var(--danger); }
+  .solution-code {
+    display: none;
+    background: #0c0e13;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    margin-top: 8px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: #b8c4d9;
+    white-space: pre-wrap;
+    line-height: 1.6;
+    overflow-x: auto;
+  }
+
+  /* Workspace */
+  .workspace {
+    padding: 32px 36px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .ws-label {
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .ws-label span.tag {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--mint);
+    background: var(--mint-soft);
+    padding: 2px 7px;
+    border-radius: 5px;
+  }
+  textarea {
+    width: 100%;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    padding: 14px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.6;
+    resize: vertical;
+    outline: none;
+  }
+  textarea:focus { border-color: var(--accent); }
+  #pseudo { min-height: 90px; margin-bottom: 20px; }
+  #code { min-height: 280px; flex: 1; }
+
+  .ws-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  button.action {
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: var(--sans);
+  }
+  button.action:hover { border-color: var(--accent); }
+  button.done-btn.is-done {
+    background: var(--mint-soft);
+    border-color: var(--mint);
+    color: var(--mint);
+  }
+  .save-status {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    margin-top: 10px;
+    height: 14px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <p class="brand">Sandbox Python</p>
+    <p class="brand-sub">4 exercices, du warm-up au combat</p>
+    <div id="ex-list"></div>
+  </div>
+
+  <div class="main">
+    <div class="instructions" id="instructions"></div>
+
+    <div class="workspace">
+      <div class="ws-label">Ta logique, en français d'abord <span class="tag">pseudocode</span></div>
+      <textarea id="pseudo" placeholder="1. je crée les variables de départ...&#10;2. tant que ... :&#10;   a. ...&#10;   b. ..."></textarea>
+
+      <div class="ws-label">Ton code <span class="tag">.py</span></div>
+      <textarea id="code" placeholder="# écris ton code ici"></textarea>
+
+      <div class="ws-actions">
+        <button class="action done-btn" id="doneBtn">Marquer comme terminé</button>
+        <button class="action" id="clearBtn">Effacer mes réponses</button>
+        <button class="action" id="copyBtn">Copier le code</button>
+      </div>
+      <div class="save-status" id="saveStatus"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const exercises = [
+  {
+    id: "notes",
+    title: "Le carnet de notes",
+    difficulty: "Facile",
+    statement: `
+      <p>Le but de ce projet est de calculer la moyenne d'une série de notes saisies par l'utilisateur.</p>
+      <p class="instr-section-label">Déroulé du script</p>
+      <p>Vous devez demander à l'utilisateur de saisir une note, une par une.</p>
+      <p>L'utilisateur peut saisir autant de notes qu'il le souhaite.</p>
+      <p>Pour arrêter la saisie, l'utilisateur doit taper <strong>"fin"</strong> au lieu d'une note.</p>
+      <p>Vous devez vérifier que chaque saisie est bien un nombre valide (sauf "fin"). Si ce n'est pas le cas, affichez un message d'erreur et redemandez une note.</p>
+      <p>Une fois la saisie terminée, vous devez afficher :</p>
+      <ul>
+        <li>Le nombre de notes saisies</li>
+        <li>La moyenne des notes</li>
+        <li>La note la plus haute</li>
+        <li>La note la plus basse</li>
+      </ul>
+      <p>Si aucune note n'a été saisie avant de taper "fin", affichez un message indiquant qu'aucune moyenne ne peut être calculée.</p>
+    `,
+    hints: [
+      "Quelle boucle utiliser si tu ne sais pas à l'avance combien de notes seront saisies ?",
+      "Pense à stocker chaque note valide dans une liste au fur et à mesure, avec .append().",
+      "Une fois la liste complète, Python a des fonctions toutes faites : sum(), min(), max() et len() sur une liste."
+    ],
+    solution: `notes = []
+
+while True:
+    saisie = input("Entrez une note (ou 'fin' pour arrêter) : ")
+    if saisie.lower() == "fin":
+        break
+    if not saisie.replace(".", "", 1).isdigit():
+        print("Veuillez entrer un nombre valide !")
+        continue
+    notes.append(float(saisie))
+
+if not notes:
+    print("Aucune note saisie, impossible de calculer une moyenne.")
+else:
+    moyenne = sum(notes) / len(notes)
+    print(f"Nombre de notes : {len(notes)}")
+    print(f"Moyenne : {moyenne:.2f}")
+    print(f"Note la plus haute : {max(notes)}")
+    print(f"Note la plus basse : {min(notes)}")`
+  },
+  {
+    id: "pfc",
+    title: "Pierre-Feuille-Ciseaux",
+    difficulty: "Facile",
+    statement: `
+      <p>Le but de ce projet est de créer un jeu Pierre-Feuille-Ciseaux contre l'ordinateur.</p>
+      <p class="instr-section-label">Déroulé du script</p>
+      <p>Le joueur doit gagner <strong>3 manches</strong> pour remporter la partie.</p>
+      <p>À chaque manche, vous demandez au joueur de choisir entre "pierre", "feuille" ou "ciseaux".</p>
+      <p>L'ordinateur choisit aléatoirement l'une des trois options.</p>
+      <p>Vous devez ensuite déterminer le gagnant de la manche selon les règles classiques :</p>
+      <ul>
+        <li>Pierre bat Ciseaux</li>
+        <li>Ciseaux bat Feuille</li>
+        <li>Feuille bat Pierre</li>
+        <li>Si les deux choix sont identiques, c'est une égalité (la manche ne compte pas)</li>
+      </ul>
+      <p>À chaque manche, affichez le choix du joueur, le choix de l'ordinateur, et le résultat de la manche.</p>
+      <p>Le jeu s'arrête dès que le joueur ou l'ordinateur atteint 3 victoires.</p>
+      <p>À la fin, affichez qui a gagné la partie et le score final.</p>
+    `,
+    hints: [
+      "Quelles variables dois-tu stocker avant la boucle ? (score du joueur, score de l'ordinateur...)",
+      "Pense à un dictionnaire ou une liste ['pierre', 'feuille', 'ciseaux'] pour le choix aléatoire de l'ordinateur avec random.choice().",
+      "Pour les règles, une astuce : compare directement les paires gagnantes dans un tuple, par exemple (choix_joueur, choix_ordi) == ('pierre', 'ciseaux')."
+    ],
+    solution: `import random
+
+choix_possibles = ["pierre", "feuille", "ciseaux"]
+score_joueur = 0
+score_ordi = 0
+
+while score_joueur < 3 and score_ordi < 3:
+    choix_joueur = input("Pierre, feuille ou ciseaux ? ").lower()
+    if choix_joueur not in choix_possibles:
+        print("Choix invalide.")
+        continue
+
+    choix_ordi = random.choice(choix_possibles)
+    print(f"Vous : {choix_joueur} | Ordinateur : {choix_ordi}")
+
+    if choix_joueur == choix_ordi:
+        print("Égalité, la manche ne compte pas.")
+        continue
+
+    gagnants = {("pierre", "ciseaux"), ("ciseaux", "feuille"), ("feuille", "pierre")}
+    if (choix_joueur, choix_ordi) in gagnants:
+        print("Vous gagnez la manche !")
+        score_joueur += 1
+    else:
+        print("L'ordinateur gagne la manche !")
+        score_ordi += 1
+
+if score_joueur > score_ordi:
+    print(f"Vous avez gagné la partie {score_joueur} - {score_ordi} !")
+else:
+    print(f"L'ordinateur a gagné la partie {score_ordi} - {score_joueur}.")`
+  },
+  {
+    id: "distributeur",
+    title: "Le distributeur automatique",
+    difficulty: "Intermédiaire",
+    statement: `
+      <p>Le but de ce projet est de simuler un distributeur automatique de boissons.</p>
+      <p class="instr-section-label">Déroulé du script</p>
+      <p>Le distributeur propose 3 boissons, chacune avec un prix :</p>
+      <ul>
+        <li>Café : 1.5 €</li>
+        <li>Thé : 1.2 €</li>
+        <li>Chocolat : 1.8 €</li>
+      </ul>
+      <p>Le distributeur dispose d'un stock de 5 unités de chaque boisson au départ.</p>
+      <p>Vous devez afficher un menu qui propose :</p>
+      <ul>
+        <li>1. Choisir une boisson</li>
+        <li>2. Consulter le stock restant</li>
+        <li>3. Quitter</li>
+      </ul>
+      <p>Si l'utilisateur choisit une boisson, vous devez :</p>
+      <ul>
+        <li>Vérifier qu'il reste du stock pour cette boisson. Si non, afficher un message et revenir au menu.</li>
+        <li>Demander à l'utilisateur combien d'argent il insère.</li>
+        <li>Si la somme est suffisante, délivrer la boisson, décrémenter le stock de 1, et rendre la monnaie si besoin.</li>
+        <li>Si la somme est insuffisante, afficher le montant manquant et ne pas délivrer la boisson.</li>
+      </ul>
+      <p>Le programme continue de tourner jusqu'à ce que l'utilisateur choisisse "Quitter".</p>
+    `,
+    hints: [
+      "Il te faut une structure pour stocker plusieurs boissons avec leur prix ET leur stock en même temps — pense à un dictionnaire de dictionnaires.",
+      "Exemple de structure : boissons = {'café': {'prix': 1.5, 'stock': 5}, ...}",
+      "Pour rendre la monnaie, la soustraction simple suffit : monnaie = argent_inséré - prix."
+    ],
+    solution: `boissons = {
+    "café": {"prix": 1.5, "stock": 5},
+    "thé": {"prix": 1.2, "stock": 5},
+    "chocolat": {"prix": 1.8, "stock": 5},
+}
+
+while True:
+    print("1. Choisir une boisson")
+    print("2. Consulter le stock")
+    print("3. Quitter")
+    choix = input("Votre choix : ")
+
+    if choix == "1":
+        nom = input("Quelle boisson ? (café / thé / chocolat) ").lower()
+        if nom not in boissons or boissons[nom]["stock"] <= 0:
+            print("Cette boisson n'est pas disponible.")
+            continue
+
+        prix = boissons[nom]["prix"]
+        argent = float(input(f"Prix : {prix} € — insérez votre argent : "))
+
+        if argent >= prix:
+            boissons[nom]["stock"] -= 1
+            monnaie = argent - prix
+            print(f"Voici votre {nom} ! Monnaie rendue : {monnaie:.2f} €")
+        else:
+            manque = prix - argent
+            print(f"Somme insuffisante, il manque {manque:.2f} €")
+
+    elif choix == "2":
+        for nom, infos in boissons.items():
+            print(f"{nom} : {infos['stock']} restantes")
+
+    elif choix == "3":
+        print("Au revoir !")
+        break`
+  },
+  {
+    id: "combat",
+    title: "Le combat de dresseurs",
+    difficulty: "Avancé",
+    statement: `
+      <p>Le but de ce projet est de créer un combat au tour par tour entre deux créatures.</p>
+      <p class="instr-section-label">Déroulé du script</p>
+      <p>Votre créature et la créature adverse commencent chacune avec 100 points de vie.</p>
+      <p>Votre créature dispose de 2 attaques :</p>
+      <ul>
+        <li>Attaque rapide : inflige entre 5 et 15 dégâts, mais a 20% de chance de rater complètement (aucun dégât infligé).</li>
+        <li>Attaque puissante : inflige entre 15 et 30 dégâts, mais vous fait aussi perdre 5 points de vie (contrecoup).</li>
+      </ul>
+      <p>L'adversaire attaque toujours avec une attaque standard, qui inflige entre 8 et 18 dégâts.</p>
+      <p>À chaque tour, vous devez demander au joueur quelle attaque utiliser (1 ou 2), gérer le cas d'une saisie invalide, appliquer les effets (dégâts, ratés, contrecoup), puis faire attaquer l'adversaire si votre créature est encore en vie.</p>
+      <p>Si les points de vie de l'un des deux combattants descendent à 0 ou moins, le combat s'arrête et vous affichez le gagnant.</p>
+      <p>À la fin de chaque tour, affichez les points de vie restants des deux créatures.</p>
+    `,
+    hints: [
+      "Le '20% de chance' est nouveau ici — regarde du côté de random.randint(1, 100) : si le résultat est ≤ 20, l'attaque rate.",
+      "Découpe le problème en deux blocs bien séparés : d'abord ton attaque (avec ses effets), puis — seulement si l'adversaire est encore vivant — l'attaque adverse.",
+      "Vérifie les points de vie après CHAQUE attaque, pas seulement à la fin du tour, sinon tu risques d'afficher un combat qui continue après qu'un des deux soit déjà mort."
+    ],
+    solution: `import random
+
+hp_joueur = 100
+hp_adversaire = 100
+
+while True:
+    choix = input("Attaque rapide (1) ou attaque puissante (2) ? ")
+    if choix not in ["1", "2"]:
+        print("Choix invalide.")
+        continue
+
+    if choix == "1":
+        if random.randint(1, 100) <= 20:
+            print("Votre attaque rapide a raté !")
+        else:
+            degats = random.randint(5, 15)
+            hp_adversaire -= degats
+            print(f"Attaque rapide : {degats} dégâts infligés !")
+    else:
+        degats = random.randint(15, 30)
+        hp_adversaire -= degats
+        hp_joueur -= 5
+        print(f"Attaque puissante : {degats} dégâts infligés (et 5 de contrecoup) !")
+
+    if hp_adversaire <= 0:
+        print("Vous avez gagné le combat !")
+        break
+
+    degats_adv = random.randint(8, 18)
+    hp_joueur -= degats_adv
+    print(f"L'adversaire vous inflige {degats_adv} dégâts.")
+
+    if hp_joueur <= 0:
+        print("Vous avez perdu le combat !")
+        break
+
+    print(f"PV restants — vous : {hp_joueur} | adversaire : {hp_adversaire}")
+    print("-" * 40)`
+  }
+];
+
+let currentId = exercises[0].id;
+const state = {}; // in-memory fallback: { id: { pseudo, code, done } }
+let saveTimer = null;
+
+function getState(id) {
+  return state[id] || { pseudo: "", code: "", done: false };
+}
+
+async function loadState(id) {
+  try {
+    const result = await window.storage.get(`sandbox:${id}`, false);
+    if (result && result.value) {
+      state[id] = JSON.parse(result.value);
+    }
+  } catch (e) {
+    // no saved data yet, that's fine
+  }
+  if (!state[id]) state[id] = { pseudo: "", code: "", done: false };
+}
+
+async function saveState(id) {
+  try {
+    await window.storage.set(`sandbox:${id}`, JSON.stringify(state[id]), false);
+    document.getElementById("saveStatus").textContent = "Sauvegardé";
+    setTimeout(() => {
+      const el = document.getElementById("saveStatus");
+      if (el) el.textContent = "";
+    }, 1500);
+  } catch (e) {
+    document.getElementById("saveStatus").textContent = "";
+  }
+}
+
+function renderSidebar() {
+  const list = document.getElementById("ex-list");
+  list.innerHTML = "";
+  exercises.forEach((ex, i) => {
+    const item = document.createElement("div");
+    item.className = "ex-item" + (ex.id === currentId ? " active" : "");
+    const st = getState(ex.id);
+    item.innerHTML = `
+      <div class="ex-num">${i + 1}</div>
+      <div class="ex-info">
+        <div class="ex-title">${ex.title}</div>
+        <div class="ex-diff">${ex.difficulty}</div>
+        ${st.done ? '<div class="ex-done">Terminé ✓</div>' : ''}
+      </div>
+    `;
+    item.onclick = () => selectExercise(ex.id);
+    list.appendChild(item);
+  });
+}
+
+function renderInstructions() {
+  const ex = exercises.find(e => e.id === currentId);
+  const container = document.getElementById("instructions");
+  container.innerHTML = `
+    <div class="instr-diff">${ex.difficulty}</div>
+    <h1 class="instr-title">${ex.title}</h1>
+    <div class="instr-body">${ex.statement}</div>
+    <div class="hints">
+      <div class="instr-section-label" style="margin-top:0">Indices</div>
+      ${ex.hints.map((h, i) => `
+        <button class="hint-btn" data-hint="${i}">Afficher l'indice ${i + 1}</button>
+        <div class="hint-text" id="hint-${i}" style="display:none">${h}</div>
+      `).join("")}
+      <div class="solution-block">
+        <button class="solution-toggle" id="solToggle">Voir la solution (à n'utiliser qu'après avoir essayé)</button>
+        <div class="solution-code" id="solCode">${escapeHtml(ex.solution)}</div>
+      </div>
+    </div>
+  `;
+  container.querySelectorAll(".hint-btn").forEach(btn => {
+    btn.onclick = () => {
+      const i = btn.dataset.hint;
+      const el = document.getElementById(`hint-${i}`);
+      el.style.display = el.style.display === "none" ? "block" : "none";
+    };
+  });
+  document.getElementById("solToggle").onclick = () => {
+    const el = document.getElementById("solCode");
+    el.style.display = el.style.display === "none" ? "block" : "none";
+  };
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function renderWorkspace() {
+  const st = getState(currentId);
+  document.getElementById("pseudo").value = st.pseudo || "";
+  document.getElementById("code").value = st.code || "";
+  const doneBtn = document.getElementById("doneBtn");
+  doneBtn.textContent = st.done ? "Terminé ✓" : "Marquer comme terminé";
+  doneBtn.classList.toggle("is-done", !!st.done);
+}
+
+async function selectExercise(id) {
+  currentId = id;
+  await loadState(id);
+  renderSidebar();
+  renderInstructions();
+  renderWorkspace();
+}
+
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => saveState(currentId), 800);
+}
+
+document.getElementById("pseudo").addEventListener("input", (e) => {
+  state[currentId] = state[currentId] || { pseudo: "", code: "", done: false };
+  state[currentId].pseudo = e.target.value;
+  scheduleSave();
+});
+
+document.getElementById("code").addEventListener("input", (e) => {
+  state[currentId] = state[currentId] || { pseudo: "", code: "", done: false };
+  state[currentId].code = e.target.value;
+  scheduleSave();
+});
+
+document.getElementById("doneBtn").addEventListener("click", () => {
+  state[currentId] = state[currentId] || { pseudo: "", code: "", done: false };
+  state[currentId].done = !state[currentId].done;
+  renderSidebar();
+  renderWorkspace();
+  saveState(currentId);
+});
+
+document.getElementById("clearBtn").addEventListener("click", () => {
+  state[currentId] = { pseudo: "", code: "", done: state[currentId] ? state[currentId].done : false };
+  renderWorkspace();
+  saveState(currentId);
+});
+
+document.getElementById("copyBtn").addEventListener("click", () => {
+  const code = document.getElementById("code").value;
+  navigator.clipboard.writeText(code).then(() => {
+    const status = document.getElementById("saveStatus");
+    status.textContent = "Code copié";
+    setTimeout(() => { status.textContent = ""; }, 1500);
+  }).catch(() => {});
+});
+
+(async function init() {
+  for (const ex of exercises) {
+    await loadState(ex.id);
+  }
+  renderSidebar();
+  renderInstructions();
+  renderWorkspace();
+})();
+</script>
+</body>
+</html>
