@@ -268,7 +268,7 @@
 <div class="app">
   <div class="sidebar">
     <p class="brand">Sandbox Python</p>
-    <p class="brand-sub">4 exercices, du warm-up au combat</p>
+    <p class="brand-sub">8 exercices, du warm-up au combat</p>
     <div id="ex-list"></div>
   </div>
 
@@ -338,6 +338,111 @@ else:
     print(f"Moyenne : {moyenne:.2f}")
     print(f"Note la plus haute : {max(notes)}")
     print(f"Note la plus basse : {min(notes)}")`
+  },
+  {
+    id: "depenses",
+    title: "Le compteur de dépenses",
+    difficulty: "Facile",
+    statement: `
+      <p>Le but de ce projet est de calculer le total des dépenses d'une journée à partir de montants saisis un par un par l'utilisateur.</p>
+      <p class="instr-section-label">Déroulé du script</p>
+      <p>Vous devez demander à l'utilisateur de saisir un montant de dépense, un par un.</p>
+      <p>Pour arrêter la saisie, l'utilisateur doit taper <strong>"fin"</strong> au lieu d'un montant.</p>
+      <p>Vous devez vérifier que chaque saisie est bien un nombre valide (sauf "fin"). Si ce n'est pas le cas, affichez un message d'erreur et redemandez un montant.</p>
+      <p>Un montant de dépense ne peut pas être négatif. Si l'utilisateur saisit un nombre négatif, affichez un message d'erreur et redemandez un montant, sans l'ajouter.</p>
+      <p>Une fois la saisie terminée, vous devez afficher :</p>
+      <ul>
+        <li>Le nombre de dépenses saisies</li>
+        <li>Le montant total dépensé</li>
+        <li>La dépense la plus élevée</li>
+        <li>La dépense la moins élevée</li>
+      </ul>
+      <p>Si aucune dépense n'a été saisie avant de taper "fin", affichez un message indiquant qu'aucun total ne peut être calculé.</p>
+    `,
+    hints: [
+      "La structure est très proche du carnet de notes : boucle while True, condition de sortie sur \"fin\", puis validation de la saisie.",
+      "Pour vérifier qu'un nombre n'est pas négatif, une fois converti en float, une simple comparaison < 0 suffit.",
+      "Attention à l'ordre des vérifications : vérifie d'abord que c'est un nombre valide, ensuite seulement vérifie s'il est négatif — sinon tu risques de comparer du texte à un nombre, et ça plante."
+    ],
+    solution: `depenses = []
+
+while True:
+    saisie = input("Entrez une dépense (ou 'fin' pour arrêter) : ")
+
+    if saisie.lower() == "fin":
+        break
+
+    if not saisie.replace(".", "", 1).isdigit():
+        print("Veuillez entrer un nombre valide !")
+        continue
+
+    montant = float(saisie)
+
+    if montant < 0:
+        print("Une dépense ne peut pas être négative !")
+        continue
+
+    depenses.append(montant)
+
+if len(depenses) == 0:
+    print("Aucune dépense saisie, impossible de calculer un total.")
+else:
+    print(f"Nombre de dépenses : {len(depenses)}")
+    print(f"Total dépensé : {sum(depenses):.2f} €")
+    print(f"Dépense la plus élevée : {max(depenses):.2f} €")
+    print(f"Dépense la moins élevée : {min(depenses):.2f} €")`
+  },
+  {
+    id: "temperatures",
+    title: "Le relevé de températures",
+    difficulty: "Facile",
+    statement: `
+      <p>Le but de ce projet est d'enregistrer une série de relevés de température et d'en calculer des statistiques.</p>
+      <p class="instr-section-label">Déroulé du script</p>
+      <p>Vous devez demander à l'utilisateur de saisir une température, une par une (les températures négatives sont autorisées, par exemple -5).</p>
+      <p>Pour arrêter la saisie, l'utilisateur doit taper <strong>"stop"</strong> au lieu d'une température.</p>
+      <p>Vous devez vérifier que chaque saisie est bien un nombre valide (sauf "stop"). Une température peut être négative, décimale, ou entière.</p>
+      <p>Une fois la saisie terminée, vous devez afficher :</p>
+      <ul>
+        <li>Le nombre de relevés saisis</li>
+        <li>La température moyenne</li>
+        <li>La température la plus haute</li>
+        <li>La température la plus basse</li>
+        <li>L'écart entre la température la plus haute et la plus basse</li>
+      </ul>
+      <p>Si aucun relevé n'a été saisi avant de taper "stop", affichez un message indiquant qu'aucune statistique ne peut être calculée.</p>
+    `,
+    hints: [
+      "Ce coup-ci, .isdigit() (même combiné à .replace(\".\", \"\")) va te poser un souci avec le signe moins : un nombre négatif comme \"-5\" n'est pas reconnu comme un nombre par cette méthode, donc ta validation habituelle va rejeter des températures pourtant valides.",
+      "Il existe un outil plus robuste pour tester si une conversion va marcher : le bloc try / except. Tu peux essayer de faire float(valeur) directement à l'intérieur d'un try, et si ça échoue (texte invalide), Python déclenche une erreur que tu peux \"attraper\" avec except ValueError: au lieu de faire planter le programme.",
+      "Structure à essayer : un try qui contient temperature = float(saisie), suivi d'un except ValueError: qui affiche l'erreur et fait continue. Le reste du code (ajout à la liste) vient juste après, et ne s'exécute que si la conversion a réussi."
+    ],
+    solution: `temperatures = []
+
+while True:
+    saisie = input("Entrez une température (ou 'stop' pour arrêter) : ")
+
+    if saisie.lower() == "stop":
+        break
+
+    try:
+        temperature = float(saisie)
+    except ValueError:
+        print("Veuillez entrer un nombre valide !")
+        continue
+
+    temperatures.append(temperature)
+
+if len(temperatures) == 0:
+    print("Aucun relevé saisi, impossible de calculer des statistiques.")
+else:
+    moyenne = sum(temperatures) / len(temperatures)
+    ecart = max(temperatures) - min(temperatures)
+    print(f"Nombre de relevés : {len(temperatures)}")
+    print(f"Température moyenne : {moyenne:.2f} °C")
+    print(f"Température la plus haute : {max(temperatures)} °C")
+    print(f"Température la plus basse : {min(temperatures)} °C")
+    print(f"Écart entre le plus haut et le plus bas : {ecart} °C")`
   },
   {
     id: "pfc",
@@ -467,6 +572,103 @@ while True:
     elif choix == "3":
         print("Au revoir !")
         break`
+  },
+  {
+    id: "panier",
+    title: "Le panier de courses",
+    difficulty: "Intermédiaire",
+    statement: `
+      <p>Le but de ce projet est de gérer un panier de courses avec un budget maximum de 50 €.</p>
+      <p class="instr-section-label">Déroulé du script</p>
+      <p>Vous disposez d'un budget de départ de 50 €.</p>
+      <p>Vous devez demander à l'utilisateur de saisir le prix d'un article, un par un.</p>
+      <p>Pour arrêter la saisie, l'utilisateur doit taper <strong>"fin"</strong> au lieu d'un prix.</p>
+      <p>Vous devez vérifier que chaque saisie est bien un nombre valide et positif (sauf "fin").</p>
+      <p>Avant d'ajouter un article au panier, vous devez vérifier que son prix ne fait pas dépasser le budget restant. Si c'est le cas, affichez un message indiquant qu'il ne reste pas assez de budget pour cet article, et ne l'ajoutez pas au panier (mais continuez la boucle, l'utilisateur peut essayer un article moins cher).</p>
+      <p>Si l'article peut être ajouté, décrémentez le budget restant du prix de l'article, et affichez le budget restant après l'achat.</p>
+      <p>Une fois la saisie terminée (l'utilisateur tape "fin", ou le budget atteint exactement 0 €), vous devez afficher :</p>
+      <ul>
+        <li>Le nombre d'articles achetés</li>
+        <li>Le montant total dépensé</li>
+        <li>Le budget restant</li>
+      </ul>
+    `,
+    hints: [
+      "Contrairement aux exercices précédents, tu as besoin d'une variable qui change au fil des tours de boucle : le budget restant. Initialise-la à 50 avant la boucle, et modifie-la à chaque achat — pas seulement à la fin.",
+      "La vérification à faire avant d'ajouter un article n'est pas \"est-ce que le prix est valide ?\" seulement, mais aussi \"est-ce que budget_restant - prix reste positif ou nul ?\".",
+      "Pense à utiliser une liste pour stocker les prix des articles achetés (pour calculer le nombre d'articles et le total à la fin), en plus de la variable budget_restant qui, elle, se met à jour immédiatement à chaque achat."
+    ],
+    solution: `budget_restant = 50
+panier = []
+
+while True:
+    if budget_restant <= 0:
+        print("Votre budget est épuisé.")
+        break
+
+    saisie = input("Entrez le prix d'un article (ou 'fin' pour arrêter) : ")
+
+    if saisie.lower() == "fin":
+        break
+
+    if not saisie.replace(".", "", 1).isdigit():
+        print("Veuillez entrer un nombre valide !")
+        continue
+
+    prix = float(saisie)
+
+    if prix <= 0:
+        print("Le prix doit être positif !")
+        continue
+
+    if prix > budget_restant:
+        print(f"Budget insuffisant : il ne vous reste que {budget_restant:.2f} €")
+        continue
+
+    panier.append(prix)
+    budget_restant -= prix
+    print(f"Article ajouté ! Budget restant : {budget_restant:.2f} €")
+
+print(f"Nombre d'articles achetés : {len(panier)}")
+print(f"Total dépensé : {sum(panier):.2f} €")
+print(f"Budget restant : {budget_restant:.2f} €")`
+  },
+  {
+    id: "controle-acces",
+    title: "Le contrôle d'accès",
+    difficulty: "Intermédiaire",
+    statement: `
+      <p>Le but de ce projet est de simuler un système de contrôle d'accès par mot de passe.</p>
+      <p class="instr-section-label">Déroulé du script</p>
+      <p>Le mot de passe correct est <strong>"python2026"</strong>.</p>
+      <p>L'utilisateur dispose de 3 tentatives pour saisir le bon mot de passe.</p>
+      <p>À chaque tentative, si le mot de passe saisi est incorrect, indiquez-lui qu'il s'est trompé et combien de tentatives il lui reste.</p>
+      <p>Si l'utilisateur trouve le bon mot de passe, affichez un message de bienvenue et arrêtez le programme immédiatement, sans attendre d'avoir épuisé les tentatives.</p>
+      <p>Si l'utilisateur épuise ses 3 tentatives sans trouver le bon mot de passe, affichez un message indiquant que l'accès est bloqué.</p>
+    `,
+    hints: [
+      "Cette structure ressemble à ton exercice du \"nombre mystère\" : une boucle while qui tourne tant qu'il reste des tentatives, avec un compteur qui diminue à chaque essai raté.",
+      "Initialise une variable tentatives_restantes = 3 avant la boucle. Utilise-la comme condition du while (while tentatives_restantes > 0:), et décrémente-la (tentatives_restantes -= 1) uniquement dans le cas où le mot de passe est incorrect.",
+      "Pour arrêter la boucle dès que le bon mot de passe est trouvé (sans attendre la fin des tentatives), pense à break. Pour savoir, après la boucle, si l'utilisateur a gagné ou perdu, une variable booléenne (acces_autorise = False au départ, mise à True en cas de succès) peut t'aider."
+    ],
+    solution: `mot_de_passe = "python2026"
+tentatives_restantes = 3
+acces_autorise = False
+
+while tentatives_restantes > 0:
+    saisie = input("Entrez le mot de passe : ")
+
+    if saisie == mot_de_passe:
+        acces_autorise = True
+        break
+
+    tentatives_restantes -= 1
+    print(f"Mot de passe incorrect. Tentatives restantes : {tentatives_restantes}")
+
+if acces_autorise:
+    print("Bienvenue, accès autorisé !")
+else:
+    print("Accès bloqué, vous avez épuisé vos tentatives.")`
   },
   {
     id: "combat",
