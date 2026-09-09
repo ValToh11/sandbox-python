@@ -542,9 +542,9 @@ function getState(id) {
 
 async function loadState(id) {
   try {
-    const result = await window.storage.get(`sandbox:${id}`, false);
-    if (result && result.value) {
-      state[id] = JSON.parse(result.value);
+    const raw = localStorage.getItem(`sandbox:${id}`);
+    if (raw) {
+      state[id] = JSON.parse(raw);
     }
   } catch (e) {
     // no saved data yet, that's fine
@@ -554,7 +554,7 @@ async function loadState(id) {
 
 async function saveState(id) {
   try {
-    await window.storage.set(`sandbox:${id}`, JSON.stringify(state[id]), false);
+    localStorage.setItem(`sandbox:${id}`, JSON.stringify(state[id]));
     document.getElementById("saveStatus").textContent = "Sauvegardé";
     setTimeout(() => {
       const el = document.getElementById("saveStatus");
